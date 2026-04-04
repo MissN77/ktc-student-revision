@@ -481,12 +481,14 @@ body {
   </div>
 
   <div class="filter-group">
-    <label>Question type</label>
+    <label>Question type (select one or more)</label>
     <div class="toggle-group" id="filter-ao">
-      <button class="toggle-btn active" data-val="all">All</button>
-      <button class="toggle-btn" data-val="AO1">AO1 Recall</button>
-      <button class="toggle-btn" data-val="AO2">AO2 Application</button>
-      <button class="toggle-btn" data-val="AO3">AO3 Analysis</button>
+      <button class="toggle-btn ao-btn active" data-val="AO1">AO1 Recall</button>
+      <button class="toggle-btn ao-btn active" data-val="AO2">AO2 Application</button>
+      <button class="toggle-btn ao-btn active" data-val="AO3">AO3 Analysis</button>
+    </div>
+    <div style="margin-top:0.5rem">
+      <button class="toggle-btn" id="btn-exam-style" style="background:var(--gold);color:#333;font-size:0.78rem" onclick="setExamStyle()">Exam Style (40/40/20)</button>
     </div>
   </div>
 
@@ -697,9 +699,29 @@ body {
     });
   }
 
+  let examStyleMode = false;
+
   function getActiveToggle(groupId) {
     const active = document.querySelector('#' + groupId + ' .toggle-btn.active');
     return active ? active.dataset.val : 'all';
+  }
+
+  function getActiveAOs() {
+    const active = document.querySelectorAll('#filter-ao .ao-btn.active');
+    return Array.from(active).map(b => b.dataset.val);
+  }
+
+  function setExamStyle() {
+    examStyleMode = !examStyleMode;
+    const btn = document.getElementById('btn-exam-style');
+    if (examStyleMode) {
+      btn.style.outline = '3px solid var(--navy)';
+      // Select all AOs
+      document.querySelectorAll('#filter-ao .ao-btn').forEach(b => b.classList.add('active'));
+    } else {
+      btn.style.outline = 'none';
+    }
+    updateMatchCount();
   }
 
   function getCheckedTags() {
@@ -712,7 +734,7 @@ body {
     const paper = getActiveToggle('filter-paper');
     const tier = getActiveToggle('filter-tier');
     const scope = getActiveToggle('filter-scope');
-    const ao = getActiveToggle('filter-ao');
+    const activeAOs = getActiveAOs();
     const topic = document.getElementById('filter-topic').value;
     const tags = getCheckedTags();
 
@@ -720,7 +742,6 @@ body {
       if (q.subject !== selectedSubject) return false;
       if (paper !== 'all' && q.paper !== paper) return false;
       if (tier !== 'all') {
-        // "Foundation" means exclude Higher-only; "Higher" means show all (Higher can do Both + Higher)
         if (tier === 'Foundation' && q.tier === 'Higher') return false;
         if (tier === 'Higher' && q.tier !== 'Higher') return false;
       }
@@ -728,7 +749,8 @@ body {
         if (scope === 'Combined' && q.scope === 'Separate') return false;
         if (scope === 'Separate' && q.scope !== 'Separate') return false;
       }
-      if (ao !== 'all' && q.ao !== ao) return false;
+      if (activeAOs.length > 0 && !activeAOs.includes(q.ao)) return false;
+      if (activeAOs.length === 0) return false;
       if (topic !== 'all' && q.unit_code !== topic) return false;
       if (tags.length > 0) {
         const qTags = q.tags || [];
@@ -748,14 +770,24 @@ body {
   }
 
   function setupFilterListeners() {
-    // Toggle buttons
-    ['filter-paper', 'filter-tier', 'filter-scope', 'filter-ao', 'filter-count'].forEach(groupId => {
+    // Toggle buttons (exclusive selection)
+    ['filter-paper', 'filter-tier', 'filter-scope', 'filter-count'].forEach(groupId => {
       document.querySelectorAll('#' + groupId + ' .toggle-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('#' + groupId + ' .toggle-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           updateMatchCount();
         });
+      });
+    });
+
+    // AO buttons (multi-select: toggle on/off)
+    document.querySelectorAll('#filter-ao .ao-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('active');
+        examStyleMode = false;
+        document.getElementById('btn-exam-style').style.outline = 'none';
+        updateMatchCount();
       });
     });
 
@@ -781,6 +813,31 @@ body {
     return a;
   }
 
+  function sampleExamStyle(pool, count) {
+    // 40% AO1, 40% AO2, 20% AO3
+    const ao1 = shuffle(pool.filter(q => q.ao === 'AO1'));
+    const ao2 = shuffle(pool.filter(q => q.ao === 'AO2'));
+    const ao3 = shuffle(pool.filter(q => q.ao === 'AO3'));
+
+    const n1 = Math.round(count * 0.4);
+    const n3 = Math.round(count * 0.2);
+    const n2 = count - n1 - n3;
+
+    let selected = [];
+    selected = selected.concat(ao1.slice(0, n1));
+    selected = selected.concat(ao2.slice(0, n2));
+    selected = selected.concat(ao3.slice(0, n3));
+
+    // If we don't have enough of one AO, fill from others
+    if (selected.length < count) {
+      const used = new Set(selected.map(q => q.id));
+      const remaining = shuffle(pool.filter(q => !used.has(q.id)));
+      selected = selected.concat(remaining.slice(0, count - selected.length));
+    }
+
+    return shuffle(selected);
+  }
+
   function startQuiz() {
     applyFilters();
     if (filteredPool.length === 0) return;
@@ -789,7 +846,14 @@ body {
     let count = countVal === 'all' ? filteredPool.length : parseInt(countVal);
     if (count > filteredPool.length) count = filteredPool.length;
 
-    quizQuestions = shuffle(filteredPool).slice(0, count).map(q => {
+    let selected;
+    if (examStyleMode) {
+      selected = sampleExamStyle(filteredPool, count);
+    } else {
+      selected = shuffle(filteredPool).slice(0, count);
+    }
+
+    quizQuestions = selected.map(q => {
       // Shuffle options
       const keys = Object.keys(q.options);
       const shuffledKeys = shuffle(keys);
