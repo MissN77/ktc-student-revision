@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KTC Science Revision</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy: #1B2A4A;
+  --teal: #2A9D8F;
+  --coral: #E76F51;
+  --cream: #FAF3E0;
+  --gold: #E9C46A;
+  --bio: #4CAF50;
+  --chem: #2196F3;
+  --phys: #FF9800;
+  --correct: #4CAF50;
+  --wrong: #E76F51;
+  --grey-light: #f0f0f0;
+  --grey-mid: #888;
+}
+
+body {
+  font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+  background: var(--cream);
+  color: var(--navy);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* Screen transitions */
+.screen {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  padding: 16px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+.screen.active {
+  display: block;
+  opacity: 1;
+}
+
+/* Header */
+.app-header {
+  background: var(--navy);
+  color: #fff;
+  padding: 20px 16px 16px;
+  text-align: center;
+}
+.app-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.app-header .subtitle {
+  font-size: 0.95rem;
+  color: var(--gold);
+  margin-top: 4px;
+}
+
+/* Stats bar */
+.stats-bar {
+  background: var(--navy);
+  color: rgba(255,255,255,0.8);
+  text-align: center;
+  padding: 6px 16px 12px;
+  font-size: 0.85rem;
+}
+.stats-bar span {
+  margin: 0 8px;
+}
+
+/* Subject cards */
+.subject-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 20px;
+}
+@media (min-width: 520px) {
+  .subject-cards { grid-template-columns: repeat(3, 1fr); }
+}
+.subject-card {
+  border: none;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  color: #fff;
+  font-family: inherit;
+  width: 100%;
+}
+.subject-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.subject-card.bio { background: var(--bio); }
+.subject-card.chem { background: var(--chem); }
+.subject-card.phys { background: var(--phys); }
+.subject-card h2 { font-size: 1.35rem; margin-bottom: 8px; }
+.subject-card .count { font-size: 0.9rem; opacity: 0.9; margin-bottom: 14px; }
+.subject-card .card-btn {
+  background: rgba(255,255,255,0.25);
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 8px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Filter panel */
+#filter-screen { padding-top: 20px; }
+.filter-heading {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.filter-subject-label {
+  font-size: 0.95rem;
+  color: var(--grey-mid);
+  margin-bottom: 16px;
+}
+.filter-group {
+  margin-bottom: 16px;
+}
+.filter-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+.toggle-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.toggle-btn {
+  padding: 8px 16px;
+  border: 2px solid var(--navy);
+  background: #fff;
+  color: var(--navy);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+.toggle-btn.active {
+  background: var(--navy);
+  color: #fff;
+}
+.filter-select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid var(--navy);
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: #fff;
+}
+.tag-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tag-checks label {
+  font-weight: 400;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.tag-checks input { cursor: pointer; }
+.match-count {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--teal);
+  margin: 16px 0 8px;
+}
+.btn-start-quiz {
+  width: 100%;
+  padding: 14px;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 8px;
+  transition: opacity 0.15s;
+}
+.btn-start-quiz:hover { opacity: 0.9; }
+.btn-start-quiz:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--teal);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 8px 0;
+  margin-bottom: 8px;
+}
+
+/* Quiz screen */
+.quiz-progress-bar {
+  background: var(--grey-light);
+  height: 6px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+.quiz-progress-fill {
+  height: 100%;
+  background: var(--teal);
+  transition: width 0.3s ease;
+}
+.quiz-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  color: var(--grey-mid);
+}
+.ao-badge {
+  background: var(--grey-light);
+  padding: 2px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #555;
+}
+.streak-display {
+  font-size: 0.85rem;
+  color: var(--gold);
+  font-weight: 600;
+}
+.quiz-progress-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.quiz-question {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  line-height: 1.6;
+}
+.option-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border: 2px solid var(--navy);
+  background: #fff;
+  color: var(--navy);
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  line-height: 1.4;
+}
+.option-btn:hover:not(:disabled) {
+  background: var(--cream);
+}
+.option-btn:disabled { cursor: default; }
+.option-btn.correct {
+  background: var(--correct);
+  color: #fff;
+  border-color: var(--correct);
+}
+.option-btn.wrong {
+  background: var(--wrong);
+  color: #fff;
+  border-color: var(--wrong);
+}
+.option-btn.dimmed {
+  opacity: 0.5;
+}
+.feedback-msg {
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 12px 0 6px;
+}
+.feedback-msg.correct-msg { color: var(--correct); }
+.feedback-msg.wrong-msg { color: var(--wrong); }
+.ko-link {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: var(--teal);
+  font-weight: 600;
+  text-decoration: underline;
+  margin-bottom: 8px;
+}
+.btn-next {
+  width: 100%;
+  padding: 14px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 8px;
+}
+.streak-congrats {
+  background: var(--gold);
+  color: var(--navy);
+  padding: 10px 16px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 12px;
+  display: none;
+}
+
+/* Results screen */
+.result-score {
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 24px 0 8px;
+}
+.result-fraction {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--grey-mid);
+  margin-bottom: 20px;
+}
+.result-score.green { color: var(--correct); }
+.result-score.amber { color: var(--gold); }
+.result-score.red { color: var(--wrong); }
+
+.topic-chart {
+  margin: 16px 0;
+}
+.chart-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+.chart-label {
+  width: 120px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 10px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chart-bar-bg {
+  flex: 1;
+  height: 22px;
+  background: var(--grey-light);
+  position: relative;
+}
+.chart-bar-fill {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+.chart-bar-text {
+  position: absolute;
+  right: 6px;
+  top: 2px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.wrong-list {
+  margin-top: 20px;
+}
+.wrong-list h3 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+.wrong-item {
+  background: #fff;
+  padding: 14px;
+  margin-bottom: 10px;
+  border-left: 4px solid var(--coral);
+}
+.wrong-item .wi-question {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.wrong-item .wi-detail {
+  font-size: 0.88rem;
+  color: var(--grey-mid);
+}
+.wrong-item .wi-detail .your-ans { color: var(--coral); font-weight: 600; }
+.wrong-item .wi-detail .correct-ans { color: var(--correct); font-weight: 600; }
+
+.result-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  padding-bottom: 30px;
+}
+.result-buttons button {
+  padding: 14px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  color: #fff;
+}
+.btn-retry { background: var(--teal); }
+.btn-change { background: var(--navy); }
+.btn-weak { background: var(--coral); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <h1>KTC Science Revision</h1>
+  <div class="subtitle">AQA GCSE Science</div>
+</header>
+<div class="stats-bar" id="stats-bar"></div>
+
+<!-- LANDING SCREEN -->
+<div class="screen active" id="landing-screen">
+  <div class="subject-cards" id="subject-cards"></div>
+</div>
+
+<!-- FILTER SCREEN -->
+<div class="screen" id="filter-screen">
+  <button class="btn-back" id="btn-back-landing">&larr; Back</button>
+  <div class="filter-heading">Set up your quiz</div>
+  <div class="filter-subject-label" id="filter-subject-label"></div>
+
+  <div class="filter-group">
+    <label>Paper</label>
+    <div class="toggle-group" id="filter-paper">
+      <button class="toggle-btn" data-val="Paper 1">Paper 1</button>
+      <button class="toggle-btn" data-val="Paper 2">Paper 2</button>
+      <button class="toggle-btn active" data-val="all">Both</button>
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <label>Tier</label>
+    <div class="toggle-group" id="filter-tier">
+      <button class="toggle-btn" data-val="Foundation">Foundation</button>
+      <button class="toggle-btn" data-val="Higher">Higher</button>
+      <button class="toggle-btn active" data-val="all">All</button>
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <label>Scope</label>
+    <div class="toggle-group" id="filter-scope">
+      <button class="toggle-btn" data-val="Combined">Combined Science</button>
+      <button class="toggle-btn" data-val="Separate">Separate Science</button>
+      <button class="toggle-btn active" data-val="all">All</button>
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <label>Topic</label>
+    <select class="filter-select" id="filter-topic">
+      <option value="all">All Topics</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label>Question type</label>
+    <div class="toggle-group" id="filter-ao">
+      <button class="toggle-btn active" data-val="all">All</button>
+      <button class="toggle-btn" data-val="AO1">AO1 Recall</button>
+      <button class="toggle-btn" data-val="AO2">AO2 Application</button>
+      <button class="toggle-btn" data-val="AO3">AO3 Analysis</button>
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <label>Tags</label>
+    <div class="tag-checks" id="filter-tags">
+      <label><input type="checkbox" value="required_practical"> Required Practicals</label>
+      <label><input type="checkbox" value="calculation"> Calculations</label>
+      <label><input type="checkbox" value="graph_interpretation"> Graph Interpretation</label>
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <label>Number of questions</label>
+    <div class="toggle-group" id="filter-count">
+      <button class="toggle-btn active" data-val="10">10</button>
+      <button class="toggle-btn" data-val="20">20</button>
+      <button class="toggle-btn" data-val="30">30</button>
+      <button class="toggle-btn" data-val="all">All</button>
+    </div>
+  </div>
+
+  <div class="match-count" id="match-count"></div>
+  <button class="btn-start-quiz" id="btn-start-quiz">Start Quiz</button>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div class="screen" id="quiz-screen">
+  <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:4px;">
+    <div class="quiz-progress-text" id="quiz-progress-text"></div>
+    <div class="streak-display" id="streak-display"></div>
+  </div>
+  <div class="streak-congrats" id="streak-congrats">Incredible. 10 correct answers in a row.</div>
+  <div class="quiz-meta" id="quiz-meta"></div>
+  <div class="quiz-question" id="quiz-question"></div>
+  <div id="quiz-options"></div>
+  <div id="quiz-feedback"></div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div class="screen" id="results-screen">
+  <div class="result-score" id="result-score"></div>
+  <div class="result-fraction" id="result-fraction"></div>
+  <div class="topic-chart" id="topic-chart"></div>
+  <div class="wrong-list" id="wrong-list"></div>
+  <div class="result-buttons" id="result-buttons"></div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // State
+  let allQuestions = [];
+  let selectedSubject = '';
+  let currentFilters = {};
+  let filteredPool = [];
+  let quizQuestions = [];
+  let quizIndex = 0;
+  let quizAnswers = []; // {questionId, picked, correct, unitCode, unitName}
+  let streak = 0;
+  let maxStreakThisQuiz = 0;
+
+  const STORAGE_KEY = 'ktc_revision_progress';
+
+  // DOM refs
+  const $landing = document.getElementById('landing-screen');
+  const $filter = document.getElementById('filter-screen');
+  const $quiz = document.getElementById('quiz-screen');
+  const $results = document.getElementById('results-screen');
+  const screens = [$landing, $filter, $quiz, $results];
+
+  function showScreen(el) {
+    screens.forEach(s => { s.classList.remove('active'); });
+    // Small delay for transition
+    requestAnimationFrame(() => {
+      el.classList.add('active');
+      window.scrollTo(0, 0);
+    });
+  }
+
+  // ---- DATA LOADING ----
+  async function loadQuestions() {
+    try {
+      const resp = await fetch('questions.json');
+      const data = await resp.json();
+      allQuestions = data;
+      init();
+    } catch (e) {
+      document.body.innerHTML = '<p style="padding:20px;color:red;">Failed to load questions. Make sure questions.json is in the same folder.</p>';
+    }
+  }
+
+  // ---- PROGRESS / LOCAL STORAGE ----
+  function getProgress() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return { totalAttempted: 0, totalCorrect: 0, units: {}, recentQuizzes: [] };
+  }
+
+  function saveProgress(prog) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(prog)); } catch(e) {}
+  }
+
+  function recordQuizResult(answers, subject) {
+    const prog = getProgress();
+    let correct = 0;
+    answers.forEach(a => {
+      prog.totalAttempted++;
+      if (a.correct) { prog.totalCorrect++; correct++; }
+      if (!prog.units[a.unitCode]) prog.units[a.unitCode] = { attempted: 0, correct: 0 };
+      prog.units[a.unitCode].attempted++;
+      if (a.correct) prog.units[a.unitCode].correct++;
+    });
+    prog.recentQuizzes.unshift({
+      date: new Date().toISOString(),
+      subject: subject,
+      total: answers.length,
+      correct: correct
+    });
+    if (prog.recentQuizzes.length > 5) prog.recentQuizzes = prog.recentQuizzes.slice(0, 5);
+    saveProgress(prog);
+  }
+
+  function renderStatsBar() {
+    const prog = getProgress();
+    const bar = document.getElementById('stats-bar');
+    if (prog.totalAttempted === 0) {
+      bar.textContent = 'No questions attempted yet. Pick a subject to start.';
+    } else {
+      const pct = Math.round((prog.totalCorrect / prog.totalAttempted) * 100);
+      bar.innerHTML = '<span>Questions attempted: ' + prog.totalAttempted + '</span> | <span>Overall accuracy: ' + pct + '%</span>';
+    }
+  }
+
+  // ---- LANDING ----
+  function init() {
+    renderStatsBar();
+    renderSubjectCards();
+    setupFilterListeners();
+  }
+
+  function renderSubjectCards() {
+    const container = document.getElementById('subject-cards');
+    const subjects = [
+      { name: 'Biology', cls: 'bio' },
+      { name: 'Chemistry', cls: 'chem' },
+      { name: 'Physics', cls: 'phys' }
+    ];
+    container.innerHTML = subjects.map(s => {
+      const count = allQuestions.filter(q => q.subject === s.name).length;
+      return '<button class="subject-card ' + s.cls + '" data-subject="' + s.name + '">' +
+        '<h2>' + s.name + '</h2>' +
+        '<div class="count">' + count + ' questions</div>' +
+        '<div class="card-btn">Start</div>' +
+        '</button>';
+    }).join('');
+
+    container.querySelectorAll('.subject-card').forEach(card => {
+      card.addEventListener('click', () => {
+        selectedSubject = card.dataset.subject;
+        openFilters();
+      });
+    });
+  }
+
+  // ---- FILTERS ----
+  function openFilters() {
+    document.getElementById('filter-subject-label').textContent = selectedSubject;
+    populateTopicDropdown();
+    resetFilters();
+    updateMatchCount();
+    showScreen($filter);
+  }
+
+  function populateTopicDropdown() {
+    const select = document.getElementById('filter-topic');
+    const subjectQs = allQuestions.filter(q => q.subject === selectedSubject);
+    const unitMap = {};
+    subjectQs.forEach(q => { unitMap[q.unit_code] = q.unit_name; });
+    const sorted = Object.keys(unitMap).sort();
+    select.innerHTML = '<option value="all">All Topics</option>';
+    sorted.forEach(code => {
+      const opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = code + ' ' + unitMap[code];
+      select.appendChild(opt);
+    });
+  }
+
+  function resetFilters() {
+    // Reset toggles to defaults
+    setToggleActive('filter-paper', 'all');
+    setToggleActive('filter-tier', 'all');
+    setToggleActive('filter-scope', 'all');
+    setToggleActive('filter-ao', 'all');
+    setToggleActive('filter-count', '10');
+    document.getElementById('filter-topic').value = 'all';
+    document.querySelectorAll('#filter-tags input').forEach(cb => cb.checked = false);
+  }
+
+  function setToggleActive(groupId, val) {
+    document.querySelectorAll('#' + groupId + ' .toggle-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.val === val);
+    });
+  }
+
+  function getActiveToggle(groupId) {
+    const active = document.querySelector('#' + groupId + ' .toggle-btn.active');
+    return active ? active.dataset.val : 'all';
+  }
+
+  function getCheckedTags() {
+    const tags = [];
+    document.querySelectorAll('#filter-tags input:checked').forEach(cb => tags.push(cb.value));
+    return tags;
+  }
+
+  function applyFilters() {
+    const paper = getActiveToggle('filter-paper');
+    const tier = getActiveToggle('filter-tier');
+    const scope = getActiveToggle('filter-scope');
+    const ao = getActiveToggle('filter-ao');
+    const topic = document.getElementById('filter-topic').value;
+    const tags = getCheckedTags();
+
+    filteredPool = allQuestions.filter(q => {
+      if (q.subject !== selectedSubject) return false;
+      if (paper !== 'all' && q.paper !== paper) return false;
+      if (tier !== 'all') {
+        // "Foundation" means exclude Higher-only; "Higher" means show all (Higher can do Both + Higher)
+        if (tier === 'Foundation' && q.tier === 'Higher') return false;
+        if (tier === 'Higher' && q.tier !== 'Higher') return false;
+      }
+      if (scope !== 'all') {
+        if (scope === 'Combined' && q.scope === 'Separate') return false;
+        if (scope === 'Separate' && q.scope !== 'Separate') return false;
+      }
+      if (ao !== 'all' && q.ao !== ao) return false;
+      if (topic !== 'all' && q.unit_code !== topic) return false;
+      if (tags.length > 0) {
+        const qTags = q.tags || [];
+        if (!tags.some(t => qTags.includes(t))) return false;
+      }
+      return true;
+    });
+
+    return filteredPool;
+  }
+
+  function updateMatchCount() {
+    applyFilters();
+    const el = document.getElementById('match-count');
+    el.textContent = filteredPool.length + ' question' + (filteredPool.length !== 1 ? 's' : '') + ' match your filters';
+    document.getElementById('btn-start-quiz').disabled = filteredPool.length === 0;
+  }
+
+  function setupFilterListeners() {
+    // Toggle buttons
+    ['filter-paper', 'filter-tier', 'filter-scope', 'filter-ao', 'filter-count'].forEach(groupId => {
+      document.querySelectorAll('#' + groupId + ' .toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#' + groupId + ' .toggle-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          updateMatchCount();
+        });
+      });
+    });
+
+    document.getElementById('filter-topic').addEventListener('change', updateMatchCount);
+    document.querySelectorAll('#filter-tags input').forEach(cb => {
+      cb.addEventListener('change', updateMatchCount);
+    });
+
+    document.getElementById('btn-back-landing').addEventListener('click', () => {
+      showScreen($landing);
+    });
+
+    document.getElementById('btn-start-quiz').addEventListener('click', startQuiz);
+  }
+
+  // ---- QUIZ ----
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function startQuiz() {
+    applyFilters();
+    if (filteredPool.length === 0) return;
+
+    const countVal = getActiveToggle('filter-count');
+    let count = countVal === 'all' ? filteredPool.length : parseInt(countVal);
+    if (count > filteredPool.length) count = filteredPool.length;
+
+    quizQuestions = shuffle(filteredPool).slice(0, count).map(q => {
+      // Shuffle options
+      const keys = Object.keys(q.options);
+      const shuffledKeys = shuffle(keys);
+      const newOptions = {};
+      const letterMap = ['A', 'B', 'C', 'D'];
+      let newCorrect = '';
+      shuffledKeys.forEach((origKey, idx) => {
+        const newKey = letterMap[idx];
+        newOptions[newKey] = q.options[origKey];
+        if (origKey === q.correct) newCorrect = newKey;
+      });
+      return { ...q, options: newOptions, correct: newCorrect };
+    });
+
+    quizIndex = 0;
+    quizAnswers = [];
+    streak = 0;
+    maxStreakThisQuiz = 0;
+    showScreen($quiz);
+    renderQuestion();
+  }
+
+  function startQuizWithQuestions(questions) {
+    if (questions.length === 0) return;
+    quizQuestions = shuffle(questions).map(q => {
+      const keys = Object.keys(q.options);
+      const shuffledKeys = shuffle(keys);
+      const newOptions = {};
+      const letterMap = ['A', 'B', 'C', 'D'];
+      let newCorrect = '';
+      shuffledKeys.forEach((origKey, idx) => {
+        const newKey = letterMap[idx];
+        newOptions[newKey] = q.options[origKey];
+        if (origKey === q.correct) newCorrect = newKey;
+      });
+      return { ...q, options: newOptions, correct: newCorrect };
+    });
+    quizIndex = 0;
+    quizAnswers = [];
+    streak = 0;
+    maxStreakThisQuiz = 0;
+    showScreen($quiz);
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = quizQuestions[quizIndex];
+    const total = quizQuestions.length;
+    const pct = ((quizIndex) / total) * 100;
+
+    document.getElementById('quiz-progress-fill').style.width = pct + '%';
+    document.getElementById('quiz-progress-text').textContent = 'Question ' + (quizIndex + 1) + ' of ' + total;
+
+    const streakEl = document.getElementById('streak-display');
+    streakEl.textContent = streak > 0 ? 'Streak: ' + streak : '';
+
+    document.getElementById('streak-congrats').style.display = 'none';
+
+    const meta = document.getElementById('quiz-meta');
+    meta.innerHTML = q.subject + ' &gt; ' + q.unit_code + ' ' + q.unit_name +
+      ' <span class="ao-badge">' + q.ao + '</span>';
+
+    document.getElementById('quiz-question').textContent = q.question;
+
+    const optContainer = document.getElementById('quiz-options');
+    const optKeys = Object.keys(q.options);
+    optContainer.innerHTML = optKeys.map(key => {
+      return '<button class="option-btn" data-key="' + key + '">' +
+        '<strong>' + key + '.</strong> ' + escHtml(q.options[key]) + '</button>';
+    }).join('');
+
+    optContainer.querySelectorAll('.option-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleAnswer(btn, q));
+    });
+
+    document.getElementById('quiz-feedback').innerHTML = '';
+  }
+
+  function escHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function handleAnswer(btn, q) {
+    const picked = btn.dataset.key;
+    const isCorrect = picked === q.correct;
+
+    // Disable all buttons
+    document.querySelectorAll('#quiz-options .option-btn').forEach(b => {
+      b.disabled = true;
+      if (b.dataset.key === q.correct) {
+        b.classList.add('correct');
+      } else if (b.dataset.key === picked && !isCorrect) {
+        b.classList.add('wrong');
+      } else {
+        b.classList.add('dimmed');
+      }
+    });
+
+    // Update streak
+    if (isCorrect) {
+      streak++;
+      if (streak > maxStreakThisQuiz) maxStreakThisQuiz = streak;
+    } else {
+      streak = 0;
+    }
+
+    document.getElementById('streak-display').textContent = streak > 0 ? 'Streak: ' + streak : '';
+
+    // Streak congrats
+    if (streak === 10) {
+      document.getElementById('streak-congrats').style.display = 'block';
+    }
+
+    // Feedback
+    let feedbackHtml = '';
+    if (isCorrect) {
+      feedbackHtml += '<div class="feedback-msg correct-msg">Correct.</div>';
+    } else {
+      feedbackHtml += '<div class="feedback-msg wrong-msg">The answer is ' + q.correct + '. ' + escHtml(q.options[q.correct]) + '</div>';
+    }
+
+    if (q.knowledge_organiser && q.knowledge_organiser.url) {
+      feedbackHtml += '<a class="ko-link" href="' + q.knowledge_organiser.url + '" target="_blank" rel="noopener">Review this topic</a><br>';
+    }
+
+    feedbackHtml += '<button class="btn-next" id="btn-next">Next</button>';
+    document.getElementById('quiz-feedback').innerHTML = feedbackHtml;
+
+    document.getElementById('btn-next').addEventListener('click', () => {
+      quizAnswers.push({
+        questionId: q.id,
+        question: q.question,
+        picked: picked,
+        pickedText: q.options[picked],
+        correctKey: q.correct,
+        correctText: q.options[q.correct],
+        correct: isCorrect,
+        unitCode: q.unit_code,
+        unitName: q.unit_name
+      });
+
+      quizIndex++;
+      if (quizIndex < quizQuestions.length) {
+        renderQuestion();
+      } else {
+        finishQuiz();
+      }
+    });
+  }
+
+  // ---- RESULTS ----
+  function finishQuiz() {
+    recordQuizResult(quizAnswers, selectedSubject);
+    renderStatsBar();
+
+    const total = quizAnswers.length;
+    const correct = quizAnswers.filter(a => a.correct).length;
+    const pct = Math.round((correct / total) * 100);
+
+    const scoreEl = document.getElementById('result-score');
+    scoreEl.textContent = pct + '%';
+    scoreEl.className = 'result-score ' + (pct >= 60 ? 'green' : pct >= 40 ? 'amber' : 'red');
+
+    document.getElementById('result-fraction').textContent = 'You got ' + correct + ' out of ' + total + ' correct.';
+
+    // Topic chart
+    const topicStats = {};
+    quizAnswers.forEach(a => {
+      if (!topicStats[a.unitCode]) topicStats[a.unitCode] = { name: a.unitName, correct: 0, total: 0 };
+      topicStats[a.unitCode].total++;
+      if (a.correct) topicStats[a.unitCode].correct++;
+    });
+
+    const chartEl = document.getElementById('topic-chart');
+    const topicKeys = Object.keys(topicStats);
+    if (topicKeys.length > 1) {
+      chartEl.innerHTML = '<h3>Score by topic</h3>' + topicKeys.map(code => {
+        const s = topicStats[code];
+        const p = Math.round((s.correct / s.total) * 100);
+        const colour = p >= 60 ? 'var(--correct)' : p >= 40 ? 'var(--gold)' : 'var(--wrong)';
+        return '<div class="chart-row">' +
+          '<div class="chart-label" title="' + code + ' ' + escHtml(s.name) + '">' + code + '</div>' +
+          '<div class="chart-bar-bg"><div class="chart-bar-fill" style="width:' + p + '%;background:' + colour + ';"></div>' +
+          '<span class="chart-bar-text">' + s.correct + '/' + s.total + '</span></div></div>';
+      }).join('');
+    } else {
+      chartEl.innerHTML = '';
+    }
+
+    // Wrong answers list
+    const wrongList = document.getElementById('wrong-list');
+    const wrongs = quizAnswers.filter(a => !a.correct);
+    if (wrongs.length > 0) {
+      wrongList.innerHTML = '<h3>Questions to review</h3>' + wrongs.map(a => {
+        return '<div class="wrong-item">' +
+          '<div class="wi-question">' + escHtml(a.question) + '</div>' +
+          '<div class="wi-detail">Your answer: <span class="your-ans">' + a.pickedText + '</span></div>' +
+          '<div class="wi-detail">Correct answer: <span class="correct-ans">' + a.correctText + '</span></div>' +
+          '</div>';
+      }).join('');
+    } else {
+      wrongList.innerHTML = '<p style="text-align:center;font-weight:600;color:var(--correct);margin-top:16px;">Perfect score. Well done.</p>';
+    }
+
+    // Buttons
+    const buttonsEl = document.getElementById('result-buttons');
+    let btns = '<button class="btn-retry">Try Again</button><button class="btn-change">Change Topic</button>';
+
+    // Weak topics button: only if there are wrong answers with identifiable topics
+    const wrongUnits = [...new Set(wrongs.map(a => a.unitCode))];
+    if (wrongUnits.length > 0) {
+      btns += '<button class="btn-weak">Try Weak Topics</button>';
+    }
+    buttonsEl.innerHTML = btns;
+
+    buttonsEl.querySelector('.btn-retry').addEventListener('click', () => {
+      startQuiz();
+    });
+    buttonsEl.querySelector('.btn-change').addEventListener('click', () => {
+      openFilters();
+    });
+    const weakBtn = buttonsEl.querySelector('.btn-weak');
+    if (weakBtn) {
+      weakBtn.addEventListener('click', () => {
+        const weakQs = allQuestions.filter(q => q.subject === selectedSubject && wrongUnits.includes(q.unit_code));
+        startQuizWithQuestions(weakQs);
+      });
+    }
+
+    showScreen($results);
+  }
+
+  // ---- INIT ----
+  loadQuestions();
+})();
+</script>
+</body>
+</html>
