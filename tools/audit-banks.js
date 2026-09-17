@@ -157,6 +157,7 @@ const LOCK = path.join(APP, '.answer-lock.json');
 let lock = {};
 try { lock = JSON.parse(fs.readFileSync(LOCK, 'utf8')).answers || {}; } catch (e) { /* none yet */ }
 const newLock = {};
+const seen = {};
 
 const faults = [];
 const toRead = [];
@@ -220,7 +221,13 @@ for (const [bank, data] of Object.entries(banks)) {
     if (new Set(opts.map((o) => o.trim())).size !== opts.length) {
       faults.push(`${p}: duplicate options`);
     }
-    const lockKey = `${bank} :: ${String(stem).slice(0, 110)} :: ${[...opts].sort().join('~').slice(0, 150)}`;
+    // Matching-pair questions repeat the same options with no distinct stem, so
+    // stem+options alone collided and reported false changes. An occurrence
+    // counter makes each one distinct. These banks are static files, so the
+    // order is stable and the counter is too.
+    const base = `${bank} :: ${String(stem).slice(0, 110)} :: ${[...opts].sort().join('~').slice(0, 150)}`;
+    seen[base] = (seen[base] || 0) + 1;
+    const lockKey = seen[base] > 1 ? `${base} #${seen[base]}` : base;
     newLock[lockKey] = opts[idx];
     if (!RELOCK && Object.prototype.hasOwnProperty.call(lock, lockKey) && lock[lockKey] !== opts[idx]) {
       faults.push(`${p}: ANSWER CHANGED. was "${String(lock[lockKey]).slice(0, 40)}" now "${opts[idx].slice(0, 40)}"`);
