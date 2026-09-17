@@ -587,6 +587,9 @@ body {
       // for being right is worse than showing them fewer questions.
       const raw = Array.isArray(data) ? data : (data.questions || []);
       const usable = raw.filter((q) => {
+        // marked unanswerable by review: depends on a diagram this app cannot
+        // show, or the stem and the options do not belong together
+        if (q && q.withheld) return false;
         const key = String(q && q.correct != null ? q.correct : '').trim();
         if (!key) return false;
         const opts = q.options && typeof q.options === 'object' ? Object.values(q.options) : [];
