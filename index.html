@@ -576,7 +576,29 @@ body {
     try {
       const resp = await fetch('questions.json');
       const data = await resp.json();
-      allQuestions = data;
+
+      // ── Withhold questions a student cannot possibly get right ──
+      // 15 questions have an EMPTY answer key. Grading is
+      // `picked === q.correct`, so with correct:'' no option can ever match:
+      // the student is marked wrong whatever they choose, and is never even
+      // shown the right answer. One more question has two IDENTICAL options,
+      // so picking the duplicate is marked wrong for giving the same answer.
+      // Withhold them until the answers are supplied. Marking a child wrong
+      // for being right is worse than showing them fewer questions.
+      const raw = Array.isArray(data) ? data : (data.questions || []);
+      const usable = raw.filter((q) => {
+        const key = String(q && q.correct != null ? q.correct : '').trim();
+        if (!key) return false;
+        const opts = q.options && typeof q.options === 'object' ? Object.values(q.options) : [];
+        if (opts.length && new Set(opts.map((o) => String(o).trim())).size !== opts.length) return false;
+        return true;
+      });
+      const withheld = raw.length - usable.length;
+      if (withheld > 0) {
+        console.warn(`[quiz] ${withheld} question(s) withheld: no answer key, or two identical options. `
+          + `Run: node ~/scripts/audit-question-banks.js .`);
+      }
+      allQuestions = Array.isArray(data) ? usable : { ...data, questions: usable };
       init();
     } catch (e) {
       document.body.innerHTML = '<p style="padding:20px;color:red;">Failed to load questions. Make sure questions.json is in the same folder.</p>';

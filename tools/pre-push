@@ -1,0 +1,10 @@
+#!/bin/sh
+# Blocks a push if any answer key is broken.
+REPO="$(git rev-parse --show-toplevel)"
+echo "→ auditing answer keys before push…"
+if ! node "$REPO/tools/audit-banks.js" "$REPO"; then
+  echo ""
+  echo "PUSH BLOCKED. Fix the answer keys, or push with --no-verify."
+  exit 1
+fi
+exit 0

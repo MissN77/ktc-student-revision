@@ -1,0 +1,22 @@
+{
+ "note": "Faults that are RECORDED and MITIGATED, not fixed. The app withholds these questions so no student can be marked wrong on them. Remove an entry once the real answer is supplied.",
+ "recordedOn": "2026-09-17",
+ "faults": {
+  "questions.json.questions[210]": "id 211 (C4.1) has two IDENTICAL options. Withheld from students until the options are fixed.",
+  "questions.json.questions[211]": "id 212 (C4.1) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[228]": "id 229 (C4.1) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[246]": "id 247 (C4.1) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[249]": "id 250 (C4.2) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[258]": "id 259 (C4.2) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[261]": "id 262 (C4.2) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[264]": "id 265 (C4.2) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[267]": "id 268 (C4.2) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[272]": "id 273 (C4.2) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[275]": "id 276 (C4.2) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[364]": "id 365 (P4.3) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[470]": "id 471 (B5.2) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[515]": "id 516 (C5.1) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[547]": "id 548 (C5.3) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied.",
+  "questions.json.questions[565]": "id 566 (C5.4) has an EMPTY answer key. Withheld from students by the guard in index.html until an answer is supplied."
+ }
+}
